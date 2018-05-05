@@ -1,0 +1,73 @@
+/*对所有标签的样式*/
+p {
+	font-size: 30px;
+	color:#0000FF;
+}
+/*对鼠标滑过标签的样式*/
+p:hover {
+	font-family:仿宋;
+	color:#000000;
+}
+
+div:hover {
+	width:500px;
+}
+/*对class=p_red的标签的样式*/
+.p_red {
+	font-size: 25px;
+	color:#FF0000;
+}
+/*对ids=p_green的标签的样式*/
+#p_green {
+	font-size: 20px;
+	color:#33FF00;
+}
+/*对包含datacolor属性的标签的样式*/
+[datacolor] {
+	font-size: 15px;
+	color:#FFFF00;
+}
+
+@keyframes key_test {
+	from {
+		width:300px;
+		height:250px;
+	}
+	100% {
+		background-image:url(../images/abu_abu.jpg);
+	}
+	to {
+		width:400px;
+		height:300px;
+	}
+}
+
+div {
+	padding:10px;   /* 内边距 */
+
+	width:300px;
+	height:250px;
+	transition:width 200ms;   /* CSS3过渡效果 */
+
+	animation-name: key_test;  /* CSS3动画效果 */
+	animation-duration: 2000ms;
+	animation-timing-function: linear;
+	animation-delay: 0s;
+	animation-iteration-count: 2; /* infinite无限 */
+	animation-direction: alternate;
+	animation-play-state: running;
+
+	border-style:solid; /* 边框设置 */
+	border-width:1px;
+	border-color:#0F0F0F;
+	border-radius:20px; 
+
+	background-image:url(../images/abu_bg.jpg); /* 背景图片 */
+	background-repeat:repeat;
+
+	text-align:center;  /* 文本设置 */
+	/* text-decoration:overline underline line-through; */
+	text-shadow:1px 1px 1px #FF0000;
+
+	letter-spacing:2px;  /* 字间距 */
+}

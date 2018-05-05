@@ -1,0 +1,42 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+ <HEAD>
+  <TITLE> SVG </TITLE>
+  <META NAME="Generator" CONTENT="EditPlus">
+  <META NAME="Author" CONTENT="">
+  <META NAME="Keywords" CONTENT="">
+  <META NAME="Description" CONTENT="">
+
+  <style>
+	@keyframes fillup {                     /* 动画名称 */
+	  to { stroke-dasharray: 188 188; }
+	}
+	circle {
+	  fill: yellowgreen;
+	  stroke: #655;
+	  stroke-width: 60;
+	  stroke-dasharray: 0 188;
+	  animation: fillup 5s linear;  /* 动画 */
+	  animation-iteration-count:infinite; /* 无限循环 */
+	  animation-direction:alternate; /* 动画交替 */
+	}
+	svg {
+	  transform: rotate(-90deg);  /* 旋转角度 */
+	  background: yellowgreen;  /* 背景颜色 */
+	  border-radius: 50%;      /* 圆角弧度半径 */
+	}
+	.main_divcls {
+			text-align:center;
+		}
+  </style>
+ </HEAD>
+
+ <BODY>
+ 	<div class='main_divcls'>
+ 		<svg version="1.1" width="120" height="120">
+			<circle cx="60" cy="60" r="30"/>
+		</svg>
+ 	</div>
+	
+ </BODY>
+</HTML>

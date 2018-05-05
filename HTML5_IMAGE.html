@@ -1,0 +1,38 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+ <HEAD>
+  <TITLE> IMAGE </TITLE>
+  <META NAME="Generator" CONTENT="EditPlus">
+  <META NAME="Author" CONTENT="">
+  <META NAME="Keywords" CONTENT="">
+  <META NAME="Description" CONTENT="">
+ </HEAD>
+
+ <BODY>
+	<form>
+		 <!-- <input type='image' src='images/abu.jpg' alt='阿部Q图'> -->
+	</form></br></br>
+	<img src='images/abu.jpg' alt='阿部Q图' usemap='abu_map'></br></br>
+	<map name='abu_map'>
+		<area shape='rect' coords='0,0,335,335' alt='阿部Q图 唐青风' onclick='OnImageClick("tqf")'>
+		<area shape='rect' coords='335,0,690,335' alt='阿部Q图 阿部察察' onclick='OnImageClick("abu")'>
+	</map>
+
+	<img id='abu_clicked' alt='显示被点击图形'>
+ </BODY>
+ <SCRIPT LANGUAGE="JavaScript">
+ <!--
+	function OnImageClick(id)
+	{
+		if(id=='tqf')
+		{
+			document.getElementById('abu_clicked').src='images/abu_tqf.jpg';
+		}
+		if(id=='abu')
+		{
+			document.getElementById('abu_clicked').src='images/abu_abu.jpg';
+		}
+	}
+ //-->
+ </SCRIPT>
+</HTML>

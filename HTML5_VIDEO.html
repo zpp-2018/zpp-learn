@@ -1,0 +1,67 @@
+<!DOCTYPE HTML>
+<HTML>
+  <HEAD>
+	  <TITLE> VIDEO </TITLE>
+	  <META NAME="Generator" CONTENT="EditPlus">
+	  <META NAME="Author" CONTENT="">
+	  <META NAME="Keywords" CONTENT="">
+	  <META NAME="Description" CONTENT="">
+  </HEAD>
+  <BODY>
+	<div style="text-align:center;">
+		<video id="video1" src="video/movie.mp4" width="360" > <!-- controls  autoplay -->
+			<source src="video/movie.mp4" type="video/mp4">
+			Your browser does not support the video tag.
+		</video>
+		</br>
+		<button onclick="playPause()">播放/暂停</button>
+		<button onclick="rePlay()">从头开始</button>
+		<button onclick="palyNext()">下一个</button>
+		<button onclick="makeBig()">放大</button>
+		<button onclick="makeNormal()">中等</button>
+		<button onclick="makeSmall()">缩小</button>
+		</br>
+	</div></br>
+
+	<SCRIPT LANGUAGE="JavaScript">
+		var myVideo = document.getElementById("video1");
+		var nextVideoSrc = 'video/ayx.mp4';
+		function playPause()
+		{
+			if(myVideo.paused)
+				myVideo.play();
+			else
+				myVideo.pause();
+		}
+
+		function rePlay()
+		{
+			myVideo.currentTime = 0;
+		}
+
+		function palyNext()
+		{
+			var tempSrc = myVideo.src;
+			myVideo.src=nextVideoSrc;
+			nextVideoSrc = tempSrc;
+			myVideo.play();
+		}
+
+		function makeBig()
+		{
+			myVideo.width=myVideo.width*1.5;
+		}
+
+		function makeNormal()
+		{
+			myVideo.width="360";
+		}
+
+		function makeSmall()
+		{
+			myVideo.width=myVideo.width/1.5;
+		}
+	</SCRIPT>
+
+ </BODY>
+</HTML>
