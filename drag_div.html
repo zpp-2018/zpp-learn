@@ -5,31 +5,36 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<style>
 		a {text-decoration:none;color:black;}
-		span.click_span {cursor:pointer;color:black;}
-		div.border_div {position:absolute;left:10px;top:10px;cursor:move;}
-		div.title_div {position:absolute;border:1px solid black;width:120px;height:20px;background-color:red;color:white;padding:5px;}
+		div.border_div {position:absolute;left:10px;top:10px;}
+		div.title_div {position:absolute;border:1px solid black;width:120px;height:20px;background-color:red;color:white;padding:5px;cursor:move;
+			-moz-user-select: -moz-none;
+		  -khtml-user-select: none;
+		  -webkit-user-select: none;
+		  -ms-user-select: none;
+		  user-select: none;
+		}
 		div.content_div {position:absolute;top:31px;border:1px solid black;width:120px;height:80px;background-color:white;padding:5px;text-align:center;}
+		img.closable_image {float:right;width:18px;height:18px;cursor:pointer;}
+		span.title_span {float:left;}
+		span.click_span {cursor:pointer;color:black;}
 	</style>
 </head>
 
-<body>
+<body style="overflow:scroll;overflow:hidden">
 	<div class='border_div'>
-		<div id='div1' class='title_div'>
-			可拖动
+		<div id='title_div' class='title_div'>
+			<span class='title_span'>可拖动</span>
+			<img class='closable_image' src='images/icon_close.png' />
 		</div>
-		<div id='div2' class='content_div'>
-	  	<span id='span1'  class='click_span'><a id='href1' href="http://www.baidu.com">打开百度</a><br><br/>写入Log</span>
+		<div id='content_div' class='content_div'>
+	  	<span id='span1'  class='click_span'><br/><a id='href1' href="http://www.baidu.com">打开百度</a><br/>写入Log</span>
 		</div>
 	</div>
+	<p id='p1'><p/>
 	
   
 	<!-- content goes here -->
-  <script type="text/javascript">
-    var span1 = document.getElementById('span1');
-    span1.addEventListener('click',function(){
-    	console.log('点击span元素');
-    });
-    
+  <script type="text/javascript">    
     function drag_div(the_div)
     {
     	this.obj = the_div;
@@ -60,13 +65,25 @@
           that.isDown = false;
       }
       this.obj.onmousedown = this.movedown;
-      this.obj.onmousemove = this.move;
+      //this.obj.onmousemove = this.move;
       this.obj.onmouseup = this.moveup;
-
-      //非ie浏览器
-      document.addEventListener("mousemove", this.move, true);
+      document.addEventListener("mousemove", this.move, true);      
     }
-    var mover = new drag_div(document.getElementById("div1"));
+    var mover = new drag_div(document.getElementById("title_div"));
+    mover.obj.getElementsByClassName("closable_image")[0].addEventListener("click",function(){
+    		mover.mainDiv.parentNode.removeChild(mover.mainDiv);
+    });
+    
+    var span1 = document.getElementById('span1');
+    span1.addEventListener('click',function(){
+    	p1.innerHTML += "点击span元素<br/>";
+    });
+    
+    var p1 = document.getElementById('p1');
+    for(var i=1;i<6;i++)
+    {
+    	p1.innerHTML += "这是第"+i+"行文字，自动生成。<br/>";
+    }
   </script>
 
 </body>
