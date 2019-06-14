@@ -1,0 +1,176 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+	<title></title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<style>
+		
+	</style>
+</head>
+
+<body>
+	
+	<!-- content goes here -->
+
+	
+  </body>
+
+  
+</html>
+<script type="text/javascript" src="stopwatch.js"></script>
+<script type="text/javascript">
+    
+	/*冒泡排序法 由大到小
+	每两个相邻的数进行比较，若小则交换，
+	一次循环后，最后一个为最小数，开始下一次循环 
+	若没有发生交换则说明排序完成
+	*/
+	function bubble_sort(arr)
+	{
+		var isSorted = true;
+		for(var i=0;i<arr.length;i++)
+		{
+			for(var j=0;j<arr.length-1-i;j++){
+				if(arr[j]<arr[j+1])
+				{
+					var temp = arr[j];
+					arr[j] = arr[j+1];
+					arr[j+1] = temp;
+					isSorted = false;
+				}
+			}
+			if(isSorted)
+			{
+				break;
+			}
+		}
+	}
+
+	/*比较排序法 由大到小
+	从第一个数开始，和后面的每一个数比较，可得到最大值
+	开始下一次循环得到第二小的值
+	全部循环完成排序
+	*/
+	function compare_sort(arr)
+	{
+		for(var i=0;i<arr.length-1;i++)
+		{
+			var n = i;
+			for(var j=i+1;j<arr.length;j++){
+				if(arr[j]>arr[n])
+				{
+					n=j;
+				}
+			}
+			if(n!=i)
+			{
+				var temp = arr[i];
+				arr[i] = arr[n];
+				arr[n] = temp;
+			}
+		}
+	}
+
+	/*插入排序法 由大到小
+	第一个数算已完排序，第二个数开始往已排序组里插入数据	
+	直到全部循环完成排序
+	*/
+	function insert_sort(arr)
+	{
+		for(var i=1;i<arr.length;i++)
+		{
+			var temp = arr[i];
+			for(var j=i-1;j>=0&&arr[j]<temp;j--){
+				arr[j+1]=arr[j];
+			}
+			arr[j+1]=temp;
+		}
+	}
+
+	/*快速排序（分治排序）法 由大到小
+	找一个基准数并保存，空出数组位置
+	从右到左开始循环，如果遇到比基准数大的则保存到空出的的位置，空出本位置
+	从左到右开始循环，如果遇到比基准数小的则保存到空出的的位置，空出本位置
+	知道左右循环相遇 一次循环结束 用基准数填充空位
+	左右半边数组开始递归
+	*/
+	function quick_sort (arr, left, right) {
+		var pivot=0;
+		var _left = left;
+		var _right = right;
+		if(_left<_right) {
+			var key=arr[_left];
+			while(_left<_right) {
+				//从右到左开始循环，如果遇到比基准数大的则保存到空出的的位置，空出本位置
+				while(_left<_right && arr[_right]<=key) {
+					_right--;
+				}
+				arr[_left]=arr[_right];
+				//从左到右开始循环，如果遇到比基准数小的则保存到空出的的位置，空出本位置
+				while(_left<_right && arr[_left]>=key) {
+					_left++;
+				}
+				arr[_right]=arr[_left];
+			}
+			//用基准数填充空位
+			arr[_left]=key;
+			//在基准数位置分割数组
+			pivot = _left;
+
+			quick_sort(arr,left,pivot-1);
+			quick_sort(arr,pivot+1,right);
+		}
+	}
+
+
+	var arr = [];
+	for(i=0;i<10000;i++)
+	{
+		arr.push(Math.floor(Math.random()*1000));
+	}
+	var arr1 = arr.slice(0);
+	var arr2 = arr.slice(0);
+	var arr3 = arr.slice(0);
+
+	var watch = new StopWatch();
+	
+	watch.Start();
+	insert_sort(arr);
+	watch.Stop();
+	console.log("插入排序:"+watch.time);
+
+	watch.Start();
+	bubble_sort(arr1);
+	watch.Stop();
+	console.log("冒泡排序:"+watch.time);
+
+	watch.Start();
+	compare_sort(arr2);
+	watch.Stop();
+	console.log("比较排序:"+watch.time);
+
+	watch.Start();
+	quick_sort(arr3,0,arr3.length-1);
+	watch.Stop();
+	console.log("快速排序:"+watch.time);
+	
+
+	/*
+	arr.forEach(function(i){
+		document.body.append((i)+' ');
+	})
+
+	arr1.forEach(function(i){
+		document.body.append((i)+' ');
+	})
+
+	arr2.forEach(function(i){
+		document.body.append((i)+' ');
+	})
+
+	arr3.forEach(function(i){
+		document.body.append((i)+' ');
+	})
+	*/
+
+</script>

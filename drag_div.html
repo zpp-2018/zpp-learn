@@ -37,22 +37,27 @@
   <script type="text/javascript">    
     function drag_div(the_div)
     {
-    	this.obj = the_div;
+      this.obj = the_div; 
       this.startx;
       this.starty;
       this.startLeft;
       this.startTop;
-      this.mainDiv = the_div.parentNode;
-      var that = this;
-      this.isDown = false;
+
+      this.mainDiv = the_div.parentNode; //指向被移动的DIV
+      var that = this;  //定义that指向this,方便被内部函数调用
+
+      this.isDown = false; //标记鼠标键是否按下
+
       this.movedown = function (e) {
           e = e ? e : window.event;
-          that.isDown = true;
+          
           that.startx = e.clientX;
           that.starty = e.clientY;
-
           that.startLeft = parseInt(window.getComputedStyle(that.mainDiv)['left']);
           that.startTop = parseInt(window.getComputedStyle(that.mainDiv)['top']);
+		  //鼠标按下，绑定鼠标移动事件
+		  document.addEventListener("mousemove", that.move, true); 
+		  that.isDown = true;
       }
       this.move = function (e) {
           e = e ? e : window.event;
@@ -62,13 +67,17 @@
           }
       }
       this.moveup = function () {
-          that.isDown = false;
+		  //鼠标放开，解绑鼠标移动事件
+		  document.removeEventListener("mousemove", that.move, true); 
+		  that.isDown = false;
       }
+	  //绑定鼠标按下和放开事件
       this.obj.onmousedown = this.movedown;
       //this.obj.onmousemove = this.move;
       this.obj.onmouseup = this.moveup;
-      document.addEventListener("mousemove", this.move, true);      
+      //document.addEventListener("mousemove", this.move, true);      
     }
+
     var mover = new drag_div(document.getElementById("title_div"));
     mover.obj.getElementsByClassName("closable_image")[0].addEventListener("click",function(){
     		mover.mainDiv.parentNode.removeChild(mover.mainDiv);

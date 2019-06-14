@@ -1,73 +1,29 @@
-﻿<!DOCTYPE HTML>
+﻿<!DOCTYPE html>
 <html>
 <head>
-	<title>测试学习</title>
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	<style>
-		a {text-decoration:none;color:black;}
-		span.click_span {cursor:pointer;color:black;}
-		div.border_div {position:absolute;left:10px;top:10px;cursor:move;}
-		div.title_div {position:absolute;border:1px solid black;width:120px;height:20px;background-color:red;color:white;padding:5px;}
-		div.content_div {position:absolute;top:31px;border:1px solid black;width:120px;height:80px;background-color:white;padding:5px;text-align:center;}
-	</style>
+    <meta charset="utf-8">
+    <title>iview example</title>
+    <link rel="stylesheet" type="text/css" href="http://unpkg.com/iview/dist/styles/iview.css">
+    <script type="text/javascript" src="http://vuejs.org/js/vue.min.js"></script>
+    <script type="text/javascript" src="http://unpkg.com/iview/dist/iview.min.js"></script>
 </head>
-
 <body>
-	<div class='border_div'>
-		<div id='div1' class='title_div'>
-			可拖动
-		</div>
-		<div id='div2' class='content_div'>
-	  	<span id='span1'  class='click_span'><a id='href1' href="http://www.baidu.com">打开百度</a><br><br/>写入Log</span>
-		</div>
-	</div>
-	
-  
-	<!-- content goes here -->
-  <script type="text/javascript">
-    var span1 = document.getElementById('span1');
-    span1.addEventListener('click',function(){
-    	console.log('点击span元素');
-    });
-    
-    function drag_div(the_div)
-    {
-    	this.obj = the_div;
-      this.startx;
-      this.starty;
-      this.startLeft;
-      this.startTop;
-      this.mainDiv = the_div.parentNode;
-      var that = this;
-      this.isDown = false;
-      this.movedown = function (e) {
-          e = e ? e : window.event;
-          that.isDown = true;
-          that.startx = e.clientX;
-          that.starty = e.clientY;
-
-          that.startLeft = parseInt(window.getComputedStyle(that.mainDiv)['left']);
-          that.startTop = parseInt(window.getComputedStyle(that.mainDiv)['top']);
-      }
-      this.move = function (e) {
-          e = e ? e : window.event;
-          if (that.isDown) {
-              that.mainDiv.style.left = e.clientX - (that.startx - that.startLeft) + "px";
-              that.mainDiv.style.top = e.clientY - (that.starty - that.startTop) + "px";
-          }
-      }
-      this.moveup = function () {
-          that.isDown = false;
-      }
-      this.obj.onmousedown = this.movedown;
-      this.obj.onmousemove = this.move;
-      this.obj.onmouseup = this.moveup;
-
-      //非ie浏览器
-      document.addEventListener("mousemove", this.move, true);
-    }
-    var mover = new drag_div(document.getElementById("div1"));
+<div id="app">
+    <i-button @click="show">Click me!</i-button>
+    <Modal v-model="visible" title="Welcome">Welcome to iView</Modal>
+</div>
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            visible: false
+        },
+        methods: {
+            show: function () {
+                this.visible = true;
+            }
+        }
+    })
   </script>
-
 </body>
 </html>

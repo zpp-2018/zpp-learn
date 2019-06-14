@@ -1,0 +1,551 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+	<title>测试学习小游戏</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<style>
+		#viewport {
+			/*包含canvas的容器*/
+			position: relative;
+		}
+		#viewport canvas {
+			/*让canvas可以覆盖*/
+			position: absolute;
+			/*让canvas背景透明*/
+			background-color: transparent;
+		}
+	</style>
+</head>
+
+<body>
+	
+  <div id="viewport"></div>
+  
+	<!-- content goes here -->
+
+  </body>
+
+  <script type="text/javascript">
+  	
+	//游戏画布大小
+	var cavs = {  
+		width:1200,
+		height:800
+	}
+	// requestAnimationFrame 的浏览器兼容性处理
+	var w = window;
+	requestAnimationFrame = 
+		w.requestAnimationFrame || 
+		w.webkitRequestAnimationFrame || 
+		w.msRequestAnimationFrame || 
+		w.mozRequestAnimationFrame;
+	//标记游戏结束
+	var isGameOver = false;
+	//记录上次屏幕刷新时间
+	var then;
+	//modifier=刷新间隔时间（intval秒）*speed 表示每次移动距离
+	var intval;
+	var modifier;
+	//通过steptimer计时 英雄每0.5秒走动一次（图片数组里的图片循环切换）
+	var stepTimer = 0;
+	//expNums 存储每级别升级所需经验
+	var expNums = [0,1,2,5,10,20,30];
+	
+	//骑鱼英雄变宽三倍
+	var qiyuWidthNum = 3;
+	//骑鱼图片
+	var qiyuSrc = [
+			["images/qiyu_right.png","images/qiyu_right2.png"],
+			["images/qiyu_right.png","images/qiyu_right2.png"],
+			["images/qiyu_left.png","images/qiyu_left2.png"],
+			["images/qiyu_left.png","images/qiyu_left2.png"]
+		];
+	//正常图片
+	var normalSrc = [
+			["images/up.png","images/up2.png"],
+			["images/right.png","images/right2.png"],
+			["images/down.png","images/down2.png"],
+			["images/left5.png","images/left2.png"]
+		];
+
+  	/*============================创建画布
+	画布分三层 
+	背景画游戏背景，基本不刷新画面
+	中间层画经验条，有变动才刷新
+	前台画英雄和怪物，一直刷新
+	*/
+	var cav_bg = document.createElement("canvas");
+	//后台层画布加上了蓝色边框
+	//cav_bg.style="border:1px solid blue";  
+	var ctx_bg = cav_bg.getContext("2d");
+	cav_bg.width = cavs.width;
+	cav_bg.height = cavs.height;
+	document.getElementById("viewport").appendChild(cav_bg);
+
+	//中间层画布
+	var cav_mg = document.createElement("canvas"); 
+	var ctx_mg = cav_mg.getContext("2d");
+	cav_mg.width = cavs.width;
+	cav_mg.height = cavs.height;
+	document.getElementById("viewport").appendChild(cav_mg);
+
+	//前台画布
+    var cav_fg = document.createElement("canvas");
+	var ctx_fg = cav_fg.getContext("2d");
+	cav_fg.width = cavs.width;
+	cav_fg.height = cavs.height;
+	document.getElementById("viewport").appendChild(cav_fg);
+
+	//==============================游戏对象
+	//游戏背景
+	var bg = {
+		width:cav_bg.width,
+		height:cav_bg.height,
+		x:0,
+		y:0,
+		src:"images/fishing.jpg"
+	}
+	//游戏英雄
+	var hero = {
+		width:42,   //人物宽度
+		height:138, //人物高度
+		x:cavs.width/2 - 21, //坐标X
+		y:cavs.height*3/4 - 138, //坐标Y
+
+		padding:{  //人物图片脚底到边境距离
+			top:18,
+			bottom:18,
+			left:10,
+			right:10
+		},    
+
+		speed:250,  //移动速度
+		direct:0, //人物行走方向0：向上  1：向右  2：向下  3：向左
+		step:0, //行走动作
+		//人物图片库
+		imgsrc:normalSrc,
+
+		//人物阴影
+		shadow:{
+			widthNum:1,    //宽度等于人物
+			heightNum:10, //高度为人物十分之一
+			src:"images/shadow.png"
+		},
+
+		isExpChange:true, //经验是否改变了
+		lv:1,  //英雄当前等级
+		exp:0, //英雄当前经验
+		maxLv:expNums.length-1,  //maxLv 英雄最高等级
+
+		isBig:false, //是否变大了
+		bigNum:1.5,  //变大倍数
+		bigTime:10,   //变大持续时间
+		bigBegin:0,  //开始变大的时间
+
+		isJump:false, //是否跳跃中
+		jumpHeight:200,//预计跳跃高度
+		jumpSpeed:10,  //跳跃速度
+		jumpDirect:0, //0：向上跳  2：向下回落
+		jumping:0,    //目前跳跃高度
+
+		isAuto:false,    //是否自动寻路中
+		targetP:{x:0,y:0} //自动寻路坐标		
+	}
+
+	//游戏怪物
+	var monster = {
+		width:70,
+		height:32,
+		exp:1,
+		bigExpNum:3,  //变大后经验加倍数
+		big:false,   //是否变大了
+		bigNum:2,  //变大倍速
+		x:0,
+		y:0,
+		src:"images/yu.png"
+	}
+
+	//游戏经验条
+	var expProcess = {
+		r:32,  //半径
+		x:50,   //圆心X Y 坐标
+		y:50,
+
+		lineWidth:16, //圆环宽度
+		lineCap:"butt", //圆环结束断点的样式  butt为平直边缘 round为圆形线帽  square为正方形线帽
+		bgColor:"#ccffff", //经验条背景色
+		color:"green", //经验条颜色
+
+		fillStyle : "rgb(255, 255, 255)", 
+		font : "20px Helvetica",  // 字体和大小
+		textAlign : "center",
+		textBaseline : "bottom",
+
+		showTextType:0 //字符显示内容 0：英雄等级 1：英雄当前经验
+
+	}
+
+	//============================准备背景图片
+	var bgReady = false;
+	var bgImg = new Image();
+	bgImg.onload = function(){
+		bgReady = true;
+		//背景图片载入完成后启动游戏
+		then = Date.now();
+		init();
+		reset();
+		main();
+	}
+	bgImg.src = bg.src;
+	//============================准备英雄图片
+	var heroReady = false;
+	var heroImg = new Image();
+	heroImg.onload = function(){
+		heroReady = true;
+	}
+	heroImg.src = hero.imgsrc[0][0];
+	//============================准备英雄阴影图片
+	var heroShadowReady = false;
+	var heroShadowImg = new Image();
+	heroShadowImg.onload = function(){
+		heroShadowReady = true;
+	}
+	heroShadowImg.src = hero.shadow.src;
+	//============================准备怪物图片
+	var monsterReady = false;
+	var monsterImg = new Image();
+	monsterImg.onload = function(){
+		monsterReady = true;
+	}
+	monsterImg.src = monster.src;
+
+	//==============================按键处理
+	var keysDown = {};
+	addEventListener("keydown",function(e){
+		keysDown[e.keyCode] = true;
+		},false
+	);
+
+	addEventListener("keyup",function(e){
+		delete keysDown[e.keyCode];
+		},false
+	);
+
+	//==============================鼠标处理
+	cav_fg.addEventListener("click",function(e){
+			//判断是否点击在经验进度条内部
+			ctx_mg.arc(expProcess.x, expProcess.y, expProcess.r, 0, 2*Math.PI);
+			if (ctx_mg.isPointInPath(e.offsetX,e.offsetY))
+			{
+				//切换经验条内显示文字内容
+			   hero.isExpChange = true;
+			   if(expProcess.showTextType == 0)
+			   {
+					expProcess.showTextType = 1;
+			   }
+			   else
+			   {
+				   expProcess.showTextType = 0;
+			   }
+			}
+			else
+			{
+				//英雄开始自动移动到指定点
+				hero.isAuto = true;
+				hero.targetP.x = e.offsetX - hero.width/2;
+				hero.targetP.y = e.offsetY - hero.height + hero.padding.bottom;
+			}	
+		},false
+	);
+
+	//=============================英雄自动行走
+	var autoMove = function(){
+		var needMove = false;
+		if(hero.x < hero.targetP.x-modifier)
+		{
+			hero.direct = 1;
+			hero.x += modifier;
+
+			needMove = true;
+		}
+		else if(hero.x > hero.targetP.x+modifier)
+		{
+			hero.direct = 3;
+			hero.x -= modifier;
+
+			needMove = true;
+		}
+		if(hero.y < hero.targetP.y-modifier)
+		{
+			hero.direct = 2;
+			hero.y += modifier;
+
+			needMove = true;
+		}
+		else if(hero.y > hero.targetP.y+modifier)
+		{
+			hero.direct = 0;
+			hero.y -= modifier;
+
+			needMove = true;
+		}
+		if(!needMove)
+		{
+			hero.isAuto = false;
+		}
+		
+	}
+
+	//=============================英雄跳跃
+	var Jumping = function(){
+		if(hero.jumpDirect==0) //向上跳
+		{
+			hero.jumping += hero.jumpSpeed;
+			if(hero.jumping>=hero.jumpHeight)
+			{
+				hero.jumpDirect = 2;
+			}
+		}
+		if(hero.jumpDirect==2) //向下落
+		{
+			hero.jumping -= hero.jumpSpeed;
+			if(hero.jumping <= 0)
+			{
+				hero.jumpDirect = 0;
+				hero.isJump = false;
+			}
+		}
+	}
+
+	//=======================游戏结束========
+	var gameover = function(){
+		ctx_fg.clearRect(0,0,cavs.width,cavs.height); 
+		if (monsterReady) {
+			var max = 10;
+			ctx_fg.drawImage(monsterImg, (cavs.width-monster.width*max)/2, (cavs.height-monster.height*max)/2,monster.width*max,monster.height*max);
+		}
+
+		//开始绘制百分比数字
+			ctx_mg.beginPath();
+			ctx_mg.fontSize = "250px"; // 字体大小
+			ctx_mg.fillStyle = "red"; 
+			ctx_mg.font = "黑体";
+			ctx_mg.textAlign = expProcess.textAlign;
+			ctx_mg.textBaseline = expProcess.textBaseline;
+			ctx_mg.fillText("您的捕鱼数量达到上限，游戏结束!", cavs.width/2, 50);	 // 文字内容和文字坐标
+	}
+
+	//=============================刷新怪物
+	var reset = function(){
+		if(hero.lv <= hero.maxLv)
+		{
+			//怪物随机出现
+			monster.big = (Math.random()>0.8); //20%几率
+			if(monster.big) 
+			{
+				monster.exp = monster.exp*monster.bigExpNum;
+				monster.width = monster.width*monster.bigNum;
+				monster.height = monster.height*monster.bigNum;
+			}
+			monster.x = monster.width + (Math.random()*(cavs.width - monster.width*2));
+			monster.y = monster.height+ (Math.random()*(cavs.height- monster.height*2)); //(Math.random()*(cavs.height - monster.height*2));
+		}
+		else
+		{
+			isGameOver = true;
+			setTimeout(gameover,100);
+		}
+	}
+
+	//===========================更新游戏对象的属性
+	var update = function (){
+		if(38 in keysDown){ //用户按的是↑
+			hero.isAuto = false;
+			hero.direct = 0;
+			if(hero.y>bg.y) //没有到达画布边界
+				hero.y -= modifier;
+		}
+		if(40 in keysDown){ //用户按的是↓
+			hero.isAuto = false;
+			hero.direct = 2;
+			if(hero.y+hero.height<bg.y+bg.height) //没有到达画布边界
+				hero.y += modifier;
+		}
+		if (37 in keysDown) { // 用户按的是←
+			hero.isAuto = false;
+			hero.direct = 3;
+			if(hero.x>bg.x) //没有到达画布边界
+				hero.x -= modifier;
+		}
+		if (39 in keysDown) { // 用户按的是→
+			hero.isAuto = false;
+			hero.direct = 1;
+			if(hero.x+hero.width<bg.x+bg.width) //没有到达画布边界
+				hero.x += modifier;
+		}
+		if (32 in keysDown) { // 用户按的是空格 左右移动时会跳起
+			//hero.isAuto = false;
+			hero.isJump = true;
+		}
+
+		// 英雄与怪物碰到了么？
+		if (  //没有排除边界
+			hero.x <= (monster.x + monster.width)
+			&& monster.x <= (hero.x + hero.width)
+			&& hero.y - hero.jumping <= (monster.y + monster.height)
+			&& monster.y <= (hero.y - hero.jumping + hero.height)
+		) {
+			//增加经验
+			hero.isExpChange = true;
+			hero.exp += monster.exp;
+
+			//console.dir(hero);
+			//console.log("LV:"+hero.lv+" EXP:"+hero.exp);
+
+			if(hero.exp>=expNums[hero.lv])
+			{
+				hero.exp = hero.exp%expNums[hero.lv];
+				hero.lv++;
+			}
+			if(monster.big) 
+			{
+				monster.big = false;
+				monster.exp = monster.exp/monster.bigExpNum;
+				monster.width = monster.width/monster.bigNum;
+				monster.height = monster.height/monster.bigNum;
+
+				if(!hero.isBig) //如果人物不在变大状态就变大
+				{
+					hero.isBig = true;				
+					//向左移动人物使人物骑鱼后中心位置不变
+					hero.x -= hero.width*(qiyuWidthNum-1)/2;
+					//骑鱼变长加速
+					hero.width = hero.width*qiyuWidthNum;
+					hero.imgsrc = qiyuSrc;
+					hero.speed = hero.speed*hero.bigNum;
+
+					//向上移动人物使人物变大后底部高度不变
+					hero.y -= hero.height*(hero.bigNum-1);
+					//向左边移动人物使人物变大后中心位置不变
+					hero.x -= hero.width*(hero.bigNum-1)/2;
+					//变大
+					hero.width = hero.width*hero.bigNum;
+					hero.height = hero.height*hero.bigNum;
+					
+				}
+				//记录变大时间，是变大状态就刷新时间
+				hero.bigBegin = Date.now();	
+			}
+			//hero.isAuto = false;
+			reset();
+		}
+	}
+
+	//======================初始化，画出游戏背景
+	var init = function(){
+		ctx_bg.clearRect(0,0,cavs.width,cavs.height); 
+		//画背景图
+		if (bgReady) {
+			ctx_bg.drawImage(bgImg, bg.x, bg.y,bg.width,bg.height);
+		}
+
+		//绘制完整的圆
+		ctx_bg.arc(expProcess.x, expProcess.y, expProcess.r, 0, 2*Math.PI); //绘制的动作	
+		ctx_bg.strokeStyle = expProcess.bgColor; //圆环线条的颜色
+		ctx_bg.lineWidth = expProcess.lineWidth;	//圆环的粗细
+		ctx_bg.stroke();
+	}
+
+
+	// =====================画出人物和怪物
+	var render = function () {
+		//画前台英雄和怪物
+		ctx_fg.clearRect(0,0,cavs.width,cavs.height);  
+		if (heroReady) {
+			heroImg.src = hero.imgsrc[hero.direct][hero.step];
+			ctx_fg.drawImage(heroImg, hero.x, hero.y - hero.jumping ,hero.width,hero.height);
+		}
+		if (heroShadowReady) {
+			heroShadowImg.src = hero.shadow.src;
+			ctx_fg.drawImage(heroShadowImg, hero.x, hero.y + hero.height - hero.padding.bottom ,hero.width/hero.shadow.widthNum,hero.height/hero.shadow.heightNum);
+		}
+		if (monsterReady) {
+			ctx_fg.drawImage(monsterImg, monster.x, monster.y,monster.width,monster.height);
+		}
+		//画中间层的进图条
+		if(hero.isExpChange)
+		{
+			ctx_mg.clearRect(0,0,cavs.width,cavs.height); 
+			//绘制进度圆弧
+			ctx_mg.beginPath();
+			var num = (2 * Math.PI / expNums[hero.lv] * hero.exp)-0.5*Math.PI;
+			ctx_mg.strokeStyle = expProcess.color; //圆环线条的颜色
+			ctx_mg.lineWidth = expProcess.lineWidth;	//圆环的粗细
+			ctx_mg.lineCap = expProcess.lineCap;	//圆环结束断点的样式  butt为平直边缘 round为圆形线帽  square为正方形线帽
+			ctx_mg.arc(expProcess.x, expProcess.y, expProcess.r, -0.5*Math.PI, num); 
+			ctx_mg.stroke();
+			//开始绘制百分比数字
+			ctx_mg.beginPath();
+			ctx_mg.fontSize = expProcess.fontSize; // 字体大小
+			ctx_mg.fillStyle = expProcess.fillStyle; 
+			ctx_mg.font = expProcess.font;
+			ctx_mg.textAlign = expProcess.textAlign;
+			ctx_mg.textBaseline = expProcess.textBaseline;
+			ctx_mg.fillText((expProcess.showTextType==0)?("LV"+hero.lv):(hero.exp), expProcess.x, expProcess.y);	 // 文字内容和文字坐标
+			//绘制完成清除标记
+			hero.isExpChange = false;
+		}
+	};
+
+	// =================游戏主函数
+	var main = function () {
+		var now = Date.now();
+		intval = (now - then)/1000; 
+		//计时器工作，走步
+		stepTimer += intval;
+		if(stepTimer>100/hero.speed) 
+		{
+			stepTimer = 0;
+			hero.step = (hero.step+1)%hero.imgsrc[hero.direct].length; 
+		}
+		//计算步距
+		modifier = intval*hero.speed;
+		//自动移动
+		if(hero.isAuto) autoMove();
+		//跳跃
+		if(hero.isJump) Jumping();
+		//变回小人
+		if(hero.isBig) {
+			if((now - hero.bigBegin)/1000>hero.bigTime) //变身结束
+			{
+				hero.isBig = false;
+				
+				//停止骑鱼变窄减速
+				hero.width = hero.width/3;
+				hero.imgsrc = normalSrc;
+				hero.speed = hero.speed/hero.bigNum;
+				//向右移动人物使人物骑鱼后中心位置不变
+				hero.x += hero.width*(qiyuWidthNum-1)/2;
+
+				//变小
+				hero.width = hero.width/hero.bigNum;
+				hero.height = hero.height/hero.bigNum;
+				//向下移动人物使人物变小后底部高度不变
+				hero.y += hero.height*(hero.bigNum-1);
+				//向右边移动人物使人物变大后中心位置不变
+				hero.x += hero.width*(hero.bigNum-1)/2;
+				
+			}
+		}
+		update();
+		render();
+		then = now;
+		// 循环（间隔时间为屏幕刷新时间）
+		if(!isGameOver)
+		{
+			requestAnimationFrame(main);
+		}
+	};
+
+  </script>
+</html>

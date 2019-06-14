@@ -10,7 +10,7 @@ p:hover {
 }
 
 div:hover {
-	width:500px;
+	width:600px;
 }
 /*对class=p_red的标签的样式*/
 .p_red {
@@ -37,8 +37,8 @@ div:hover {
 		background-image:url(../images/abu_abu.jpg);
 	}
 	to {
-		width:400px;
-		height:300px;
+		width:600px;
+		height:500px;
 	}
 }
 

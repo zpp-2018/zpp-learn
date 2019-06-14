@@ -4,29 +4,65 @@
 			HTML学习
 		</title>
 		<style type='text/css'>
-			.divcls {
-					text-align:center;
-					font-size:45px;
-					margin-top:100px;
-				}
-			a {
-					color:black;
-					text-shadow:2px 2px 4px gray;
-					text-decoration:none;
-					line-height:200%;
-				}
-			a:hover {
-					color:red;
-					text-decoration:underline;
-				}
+            .items{
+                position:relative;
+                float:left;
+                width:20%;
+                margin:10px;
+                height:20%;
+
+                text-align:center;
+				font-size:25px;
+
+                border-style:solid; /* 边框设置 */
+	            border-width:1px;
+	            border-color:#0F0F0F;
+	            border-radius:20px; 
+            }
+
+            .items > a {
+                color:black;
+				text-shadow:2px 2px 4px gray;
+				text-decoration:none;
+				line-height:150%;
+            }
+
+            .items > a:hover {
+                color:red;
+				text-decoration:underline;
+            }
 		</style>
 	</head>
 	<body>
-		<div class='divcls'>
-			<a href='HTML5_IMAGE.html'>IMAGE 图像MAP热点</a></br>
-			<a href='HTML5_VIDEO.html'>VIDEO 视频控制</a></br>
-			<a href='HTML5_CSS.html'>CSS 常用CSS选择及排版</a></br>
-			<a href='HTML5_SVG.html'>SVG 基本画图</a></br>
-		</div>
+		    <div class='items'>
+			    <a tag='HTML5_IMAGE.html'>IMAGE 图像MAP热点</a></br>
+			    <a tag='HTML5_VIDEO.html'>VIDEO 视频控制</a></br>
+			    <a tag='HTML5_CSS.html'>CSS 常用CSS选择及排版</a></br>
+			    <a tag='HTML5_SVG.html'>SVG 基本画图</a></br>
+			</div>
+			<div class='items'>
+			    <a tag='drag_div.html'>javascript拖动窗口</a></br>
+			</div>
+			<div class='items'>
+			    <a tag='canvas_game.html'>canvas小游戏</a></br>			
+			    <a tag='canvas_chart.html'>canvas图表</a></br>
+			</div>
+			<div class='items'>			
+				<a tag='vue_tabs.html'>Vue选项卡</a></br>
+			</div>
+        <iframe class="showHtml" style="width:95%;height:70%;border:none"></iframe>
 	</body>
 </html>
+
+<script>
+    window.onload = function () {
+        var iframe = document.getElementsByClassName("showHtml")[0];
+        var alinks = Array.from(document.getElementsByTagName("a"));
+        alinks.forEach(function (a, i) {
+            console.log(a.attributes["tag"].value);
+            a.addEventListener("click", function () {
+                iframe.src = a.attributes["tag"].value;
+            });
+        })
+    }
+</script>

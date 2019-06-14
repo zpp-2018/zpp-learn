@@ -1,0 +1,186 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+	<title></title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<link rel="typesheet" href="./css/bootstrap.min.css" />
+	<style>
+		body{
+			margin: 0px;
+		}
+
+		.leftMenu{
+			position: relative;
+			float: left;
+			width: 20%;
+		}
+
+		.menu li{
+			margin-top: 10px;
+			cursor: pointer;
+		}
+
+
+		.tabs{
+			margin-top: 5px;
+			position: relative;
+			float: right;
+			width: 80%;
+		}
+
+		.tabHeads{
+			width: 100%;
+			height: 25px;
+		}
+
+		.tabHead{
+			width: 100px;
+			height: 25px;
+			margin: 0;
+			float: left;
+			text-align: center;
+		}
+
+		.tabHead h4{
+			float: left;
+			margin-top: 3px;
+			margin-left: 3px;
+			margin-bottom: 0px;
+			cursor: pointer;
+		}
+
+		img.closable_image {
+			margin-top: 2px;
+			margin-right: 2px;
+			float:right;
+			width:9px;
+			height:9px;
+			cursor:pointer;
+		}
+
+		.hasSelected{
+			border-top: solid cornflowerblue 1px;
+			border-left: solid cornflowerblue 1px;
+			border-right: solid cornflowerblue 1px;
+		}
+
+		.notSelected{
+			border: solid cornflowerblue 1px;
+		}
+
+
+		.tabContents{
+			width: 100%;
+			height: 600px;
+		}
+
+		iframe{
+			width: 100%;
+			height: 100%;
+		}
+
+		
+	</style>
+	<script type="text/javascript" src="vue.min.js"></script>
+
+</head>
+
+<body>
+	<div class="leftMenu">
+		<ul class="menu">
+			<li v-for="menu in menus" v-text="menu.text"  :key="menu.num" @click="Show(menu.num)"></li>
+		</ul>
+	</div>
+
+	<div class="tabs">
+		<div class="tabHeads">
+			<div class="tabHead" v-for="tab in tabs"  :key="tab.num" :class="tab.selected?'hasSelected':'notSelected'" @click="Display(tab.num)">
+				<h4 v-text="tab.text"></h4>
+				<img class='closable_image' v-if="tab.closeAble" @click.stop="CloseTab(tab.num)" src='images/icon_close.png' />
+			</div>
+		</div>
+		<div class="tabContents">
+			<iframe v-for="tab in tabs" :src="tab.url" :key="tab.num" frameborder="0" v-show="tab.selected"></iframe>
+		</div>
+	</div>
+
+	<script>
+		var vm_menu = new Vue({
+			el:".leftMenu",
+			data:{
+				menus:[
+					{num:1,text:"学生管理",url:"./vue_table.html?cmd=student"},
+					{num:2,text:"老师记录",url:"./vue_table.html?cmd=teacher"},
+					{num:3,text:"领导管理",url:"./vue_table.html?cmd=leader"}		
+				]
+			},
+			methods:{
+				Show(num){
+					var isExist = false;
+					vm_tabs.tabs.forEach(tab => {
+						if(num == tab.num)
+						{
+							tab.selected = true;
+							isExist = true;
+						}
+						else
+						{
+							tab.selected = false;
+						}
+					});
+					if(!isExist)
+					{
+						this.menus.forEach(menu =>{
+							if(num == menu.num)
+							{
+								vm_tabs.tabs.push({num:menu.num,text:menu.text,url:menu.url,selected:true,closeAble:true});
+								return false;
+							}
+						})
+					}
+				}
+			}
+		});
+
+		var vm_tabs = new Vue({
+			el:".tabs",
+			data:{
+				tabs:[
+					{num:1,text:"学生管理",url:"./vue_table.html?cmd=student",selected:true,closeAble:false}
+				]
+			},
+			methods:{
+				Display(num){
+					this.tabs.forEach(tab => {
+						if(num == tab.num)
+						{
+							tab.selected = true;
+						}
+						else
+						{
+							tab.selected = false;
+						}
+					});
+				},
+				CloseTab(num){
+					this.tabs.forEach((tab,index) => {
+						if(num == tab.num)
+						{
+							if(tab.selected)
+							{
+								this.tabs[index-1].selected = true;
+							}
+							this.tabs.splice(index,1);
+
+							return false;
+						}
+					});
+				}
+			}
+		});
+	</script>
+	
+  </body>
+
+  
+</html>

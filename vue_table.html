@@ -1,0 +1,194 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+	<title></title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<style>
+		.class1{
+			color:red;
+		}
+
+		table{
+			margin-top: 5px;
+			border-collapse: collapse;      /* 为表格设置合并边框模型 */
+			border-spacing: 0; /* 设置在表格中的单元格之间出现的间距为0 */
+			width: 90%;
+		}
+
+		table thead tr{
+			background-color: #1abc9c
+		}
+
+		table td{
+			border: 1px solid gray;
+			text-align: center;
+			height: 25px;
+			padding: 0;
+		}
+
+		table input{
+			width:95%;
+		}
+	</style>
+	<script src="./stopwatch.js"></script>
+	<script type="text/javascript" src="vue.min.js"></script>
+
+</head>
+
+<body>
+	<div id="tab" class="tabDiv">
+			<label for="username">
+				姓名：
+				<input id="username" v-model="keyWord" type="text">
+			</label>
+			<table class="table"> 
+				<thead>
+					<tr>
+						<td style="width: 10%">序号</td>
+						<td style="width: 10%">姓名</td>
+						<td style="width: 10%">性别</td>
+						<td style="width: 50%">加入时间</td>
+						<td style="width: 20%">操作</td>
+					</tr>					
+				</thead>
+				<tbody>
+					<tr v-for="(user,index) in FindUsers()">
+						<td>
+							<span v-text="user.postData.id">序号</span>
+						</td>
+						<td>
+							<span v-text="user.postData.name" v-show="!user.editAble">姓名</span>
+							<input type="text" v-model="user.postData.name" v-if="user.editAble" @change="NeedUpdate(user.postData.id)">
+						</td>
+						<td>
+							<span v-text="user.postData.sex" v-show="!user.editAble">性别</span>
+							<select v-model="user.postData.sex" v-if="user.editAble" @change="NeedUpdate(user.postData.id)">
+								<option value="男">男</option>
+								<option value="女">女</option>
+							</select>
+						</td>
+						<td>
+							<span>{{user.postData.createTime|DateTime}}</span>
+						</td>
+						<td>
+							<a href="#" @click.prevent="Del(user.postData.id)">删除</a>
+							<a href="#" @click.prevent="Edit(user.postData.id)" v-text="user.editAble?'保存':'修改'"></a>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<script type="text/javascript">
+			var cmdType = getQueryVariable("cmd");
+			console.log(cmdType);
+			var userData = [];
+			if(cmdType=="student")
+			{
+				userData = [
+					{
+						postData:{id:1,name:'郑鹏',sex:'男',createTime:new Date()},
+						editAble:false,isChanged:false
+					},
+					{
+						postData:{id:2,name:'张三',sex:'女',createTime:new Date()},
+						editAble:false,isChanged:false
+					}
+				]
+			}
+			if(cmdType=="teacher")
+			{
+				userData = [
+					{
+						postData:{id:1,name:'赵武',sex:'男',createTime:new Date()},
+						editAble:false,isChanged:false
+					},
+					{
+						postData:{id:2,name:'李思',sex:'女',createTime:new Date()},
+						editAble:false,isChanged:false
+					}
+				]
+			}
+			if(cmdType=="leader")
+			{
+				userData = [
+					{
+						postData:{id:1,name:'王奎',sex:'男',createTime:new Date()},
+						editAble:false,isChanged:false
+					},
+					{
+						postData:{id:2,name:'陆婷',sex:'女',createTime:new Date()},
+						editAble:false,isChanged:false
+					}
+				]
+			}
+
+			var vm_tab1 = new Vue({
+				el:'#tab',
+				data:{
+					users:userData,
+					keyWord:""
+				},
+				methods:{
+					Del(userid){
+						console.log(userid);
+						this.users.forEach((user,index) => {
+							if(user.postData.id==userid)
+							{
+								this.users.splice(index,1);
+							}
+						});
+					},
+					Edit(userid){
+						console.log(userid);
+						this.users.forEach((user,index) => {
+							if(user.postData.id==userid)
+							{
+								user.editAble = !user.editAble;
+							}
+						});
+					},
+					NeedUpdate(userid){
+						this.users.forEach((user,index) => {
+							if(user.postData.id==userid)
+							{
+								user.isChanged = true;
+							}
+						});
+
+						this.users.forEach((user) => {
+							console.log(user.postData.id + " : " +user.isChanged);
+						});
+
+					},
+					FindUsers(){
+						var findUsers = [];
+						this.users.forEach((user) => {
+							if(user.postData.name.indexOf(this.keyWord)!=-1)
+							{
+								findUsers.push(user);
+							}
+						});
+						return findUsers;
+					}
+				},
+				filters:{
+					DateTime(date)
+					{
+						var year = date.getFullYear();
+						var month = date.getMonth()+1;
+						var day = date.getDate(); 
+
+						var hour = date.getHours();
+						var min = date.getMinutes();
+						var sec = date.getSeconds();
+
+						return year+"年"+month+"月"+day+"日 "+hour+"时"+min+"分"+sec+"秒";
+					}
+				}
+			});
+		</script>
+	
+  </body>
+
+  
+</html>

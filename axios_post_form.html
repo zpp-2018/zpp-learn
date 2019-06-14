@@ -1,0 +1,101 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+	<title></title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<link rel="stylesheet" href="./css/bootstrap.min.css">
+	<style>
+		#zpp{
+			padding: 10px;
+		}
+
+		table{
+			margin-top: 5px;
+		}
+	</style>
+	<script type="text/javascript" src="vue.min.js"></script>
+	<script src="./axios.min.js"></script>
+
+</head>
+
+<body>
+	
+	<div id="zpp">
+		
+		
+		<span class="label label-info">
+			姓名：
+			<input id='user_name' type="text">
+		</span>
+		
+		
+		<button type="button" @click="GetUserList" class="btn btn-large btn-success">登录</button>
+		
+		
+		<table class="table table-hover">
+			<thead>
+				<tr>
+					<th>序号</th>
+					<th>姓名</th>
+					<th>年龄</th>
+					<th>性别</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr v-for="user in users" :key="user.id">
+					<td v-text="user.id"></td>
+					<td v-text="user.name"></td>
+					<td v-text="user.age"></td>
+					<td v-text="user.sex"></td>
+				</tr>
+			</tbody>
+		</table>
+		
+	</div>
+
+	<script>
+		var vm = new Vue({
+			el:"#zpp",
+			data:{
+				users:[]
+			},
+			beforeCreate()
+			{
+				const params = new URLSearchParams();
+				params.append('cmd', 'load');
+				params.append('username', 'zpp');
+				axios.post('http://localhost:88/MyWebLearn/Action/Index.aspx', params)
+				.then(function (response) {
+					console.log(response.data);
+				})
+				.catch(function (error) {
+					console.log(error);
+				});
+			},
+			created()
+			{
+				this.GetUserList();
+				this.users = [{id:1,name:'zpp',age:30,sex:'男'}]
+			},
+			methods:{
+				GetUserList()
+				{
+					const params = new URLSearchParams();
+					params.append('cmd', 'query');
+					params.append('username', '');
+					axios.post('http://localhost:88/MyWebLearn/Action/Index.aspx', params)
+					.then(function (response) {
+						console.log(response.data);
+					})
+					.catch(function (error) {
+						console.log(error);
+					});
+				}
+			}
+		})
+	</script>
+	
+</body>
+
+  
+</html>

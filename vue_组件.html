@@ -1,0 +1,80 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+	<title></title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<link rel="stylesheet" href="./css/bootstrap.min.css">
+	<style>
+		.float_left{
+			float: left;
+			width: 20%;
+        }
+        
+        h3{
+            cursor: pointer;
+        }
+
+	</style>
+	<script type="text/javascript" src="vue.min.js"></script>
+
+</head>
+
+<body>
+	<template id='tmp_com1'>
+		<div class="float_left">
+			<h3 @click="Add">零件{{msg}}</h3>
+			<h3 @click="Show">总数</h3>
+			<span>{{counter}}</span>
+		</div>
+	</template>
+
+	<div id="zpp">
+		<!-- v-bind传递数据  v-on传递方法 -->
+		<my-com1 v-for="i in list" :msg="i" @func="Show" :key="i"></my-com1>
+	</div>
+
+	
+	<script>
+		//局部组件 属于vm对象
+		var myCom1 = {
+			template:'#tmp_com1',
+			//声明来自父组件的数据 只能读不能写
+			props:['msg'],  
+			//子组件自身的数据 可读可写
+			data:function(){
+				return {
+					counter:1
+				}
+			},			
+			//子组件的方法
+			methods:{
+				Add(){
+					this.counter++;
+				},
+				Show(){
+					//调用父组件传递过来的函数 第一个参数是函数名 第二个开始为函数参数
+					this.$emit('func','零件'+this.msg+':数量'+this.counter);
+				}
+			}
+		}
+		
+		var vm = new Vue({
+			el:'#zpp',
+			data:{
+				list:[1,2,3]
+			},
+			methods:{
+				Show(name){
+					console.log('共'+this.list.length+'类零件，目前'+name);
+				}
+			},
+			components:{
+				'myCom1':myCom1
+			}
+		});
+	</script>
+	
+</body>
+
+  
+</html>

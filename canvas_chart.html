@@ -1,0 +1,118 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+	<title></title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<style>
+		
+	</style>
+</head>
+
+<body>
+	
+	<!-- content goes here -->
+
+	<canvas id="myCanvas" width="500" height="500"></canvas>
+  </body>
+
+  
+</html>
+
+<script type="text/javascript">
+    window.onload = function () {      
+        var data = [
+            {
+                name: "zpp",
+                money: 20
+            }, {
+                name: "zmf",
+                money: 30
+            }, {
+                name: "zxy",
+                money: 80
+            }, {
+                name: "wyc",
+                money: 30
+            }, {
+                name: "xifu",
+                money: 200
+            }];
+        drawZhuBiao(data);
+    }
+
+    //画柱状标
+    function drawZhuBiao(data)
+    {
+        var canvas = document.getElementById("myCanvas");
+        var ctx = canvas.getContext("2d");
+
+        var oPoint = {x:10,y:130};
+        var zhuWidth = 20;
+        var zhuIntval = 10;
+
+        //画X轴
+        ctx.beginPath();
+        ctx.moveTo(oPoint.x-10, oPoint.y);
+        ctx.lineTo(oPoint.x + (data.length + 1) * (zhuWidth + zhuIntval), oPoint.y);
+        //X轴箭头
+        ctx.moveTo(oPoint.x + (data.length + 1) * (zhuWidth + zhuIntval), oPoint.y);
+        ctx.lineTo(oPoint.x + (data.length + 1) * (zhuWidth + zhuIntval) -5 , oPoint.y - 5);
+        ctx.moveTo(oPoint.x + (data.length + 1) * (zhuWidth + zhuIntval), oPoint.y);
+        ctx.lineTo(oPoint.x + (data.length + 1) * (zhuWidth + zhuIntval) -5, oPoint.y + 5);
+
+        ctx.stroke();
+
+        //画Y轴
+        ctx.beginPath();
+        ctx.moveTo(oPoint.x, oPoint.y + 10);
+        ctx.lineTo(oPoint.x, 10);
+        //Y轴箭头
+        ctx.moveTo(oPoint.x, 10);
+        ctx.lineTo(oPoint.x - 5, 10 + 5);
+        ctx.moveTo(oPoint.x, 10);
+        ctx.lineTo(oPoint.x + 5, 10 + 5);
+
+        ctx.stroke();
+
+        var maxVal = 0;
+        data.forEach(function (obj, index) {
+            if (maxVal < obj.money)
+                maxVal = obj.money;
+        });
+
+        data.forEach(function (obj, index) {
+            var zhuPoint = {
+                x: oPoint.x + zhuIntval + index * (zhuWidth + zhuIntval),
+                y: oPoint.y
+            };
+            var textPoint = {
+                x: oPoint.x + zhuIntval + index * (zhuWidth + zhuIntval) + zhuWidth/2 ,
+                y: oPoint.y 
+            };
+            drawZhuZi(ctx, zhuPoint, zhuWidth, obj.money * 100 / maxVal);
+            drawName(ctx, obj.name, textPoint);
+        });
+    }
+
+
+    //画柱状图
+    function drawZhuZi(ctx, point, weight ,height,color)
+    {
+        ctx.beginPath();       
+        ctx.rect(point.x, point.y - height -1, weight, height);
+        ctx.fillStyle = "yellow";
+        ctx.strokeStyle = "red";
+        ctx.stroke();
+        ctx.fill();
+    }
+
+    function drawName(ctx,name, point) {
+        ctx.beginPath();
+        ctx.fillStyle = "black";
+        ctx.textAlign = "center";    //水平居中
+        ctx.textBaseline = "middle"; //垂直居中
+        ctx.fillText(name, point.x, point.y+10);
+        console.log(name);
+    }
+
+</script>

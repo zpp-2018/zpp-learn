@@ -1,0 +1,63 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+	<title></title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<link rel="typesheet" href="./css/bootstrap.min.css" />
+	<style>
+		.colors{
+			border: 2px solid white;
+			text-align: center;
+			font-weight: bold;
+			line-height: 60px;/*让黄色div中的文字内容垂直居中*/
+			float: left;
+			width:45%;
+			height: 60px;
+		}
+	</style>
+	<script type="text/javascript" src="vue.min.js"></script>
+	<script src="./axios.min.js"></script>
+
+</head>
+
+<body>
+	<div id="zpp">
+		<div class='colors' v-for="color in colors" v-text="color" :key="color" v-color="color"></div>
+	</div>
+	
+
+	<script>
+		var vm = new Vue({
+			el:'#zpp',
+			data:{
+				colors:[
+					"#1abc9c","#16a085",
+					"#2ecc71","#27ae60",
+					"#3498db","#2980b9",
+					"#9b59b6","#8e44ad",
+					"#34495e","#2c3e50",
+					"#f1c40f","#f39c12",
+					"#e67e22","#d35400",
+					"#e74c3c","#c0392b",
+					"#ecf0e1","#bdc3c7",
+					"#95a5a6","#7f8c8d"
+				]
+			},
+			directives: {
+				color: {
+					// 指令的定义
+					inserted: function (el,binding) {
+						console.log(el);
+						console.log(binding);
+						el.style = "background-color:"+binding.value;
+					}
+				}
+			}
+		})
+	
+	</script>
+	
+  </body>
+
+  
+</html>
